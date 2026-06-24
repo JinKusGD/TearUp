@@ -14,6 +14,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Jump",
+                    "type": "PassThrough",
+                    "id": "6327637d-583b-4fc5-b1c0-5753a1d0ec63",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -71,6 +80,65 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "c829a7d9-172d-4311-b5b5-641b586caaf0",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Camera",
+            "id": "b6254bbe-2a95-45f0-86a4-482ed09a4420",
+            "actions": [
+                {
+                    "name": "DragHotigontal",
+                    "type": "Value",
+                    "id": "c7c6e660-136a-4f1a-ae59-3333bf1d4a04",
+                    "expectedControlType": "Axis",
+                    "processors": "Scale(factor=30)",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "DragVertical",
+                    "type": "Value",
+                    "id": "1e12a4cd-5b3f-49d8-82c7-d6ea7236395e",
+                    "expectedControlType": "Axis",
+                    "processors": "Scale(factor=30)",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "bc081341-efb3-496d-b389-e0b589b6e5dd",
+                    "path": "<Mouse>/delta/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DragHotigontal",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "16017173-11dd-448f-a17d-65a4d7d66fe8",
+                    "path": "<Mouse>/delta/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DragVertical",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
