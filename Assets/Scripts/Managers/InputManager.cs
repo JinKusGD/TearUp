@@ -9,6 +9,7 @@ public class InputManager : MonoBehaviour
     [Header("Input Actions")]
     [SerializeField] private InputActionReference _playerMoveAction;
     [SerializeField] private InputActionReference _playerJumpAction;
+    [SerializeField] private InputActionReference _playerRunAction;
 
     private void Awake()
     {
@@ -42,6 +43,11 @@ public class InputManager : MonoBehaviour
         _playerJumpAction.action.performed += callback;
     }
 
+    public void BindPlayerRunAction(Action<InputAction.CallbackContext> callback)
+    {
+        _playerRunAction.action.performed += callback;
+    }
+
     public void UnBindPlayerMoveAction(Action<InputAction.CallbackContext> callback)
     {
         _playerMoveAction.action.performed -= callback;
@@ -52,23 +58,30 @@ public class InputManager : MonoBehaviour
         _playerJumpAction.action.performed -= callback;
     }
 
+    public void UnBindPlayerRunAction(Action<InputAction.CallbackContext> callback)
+    {
+        _playerRunAction.action.performed -= callback;
+    }
+
     public void EnablePlayerAction()
     {
         EnablePlayerMoveAction();
         EnablePlayerJumpAction();
+        EnablePlayerRunAction();
     }
 
     public void DisablePlayerAction()
     {
         DisablePlayerMoveAction();
         DisablePlayerJumpAction();
+        DisablePlayerRunAction();
     }
 
     private void EnablePlayerMoveAction()
     {
         if (_playerMoveAction.action.enabled)
         {
-            Debug.Log("플레이어 이동 액션이 이미 활성화 되어있습니다.");
+            Debug.Log("플레이어 걷기 액션이 이미 활성화 되어있습니다.");
             return;
         }
         
@@ -86,11 +99,22 @@ public class InputManager : MonoBehaviour
         _playerJumpAction.action.Enable();
     }
 
+    private void EnablePlayerRunAction()
+    {
+        if (_playerRunAction.action.enabled)
+        {
+            Debug.Log("플레이어 달리기 액션이 이미 활성화 되어있습니다.");
+            return;
+        }
+
+        _playerRunAction.action.Enable();
+    }
+
     private void DisablePlayerMoveAction()
     {
         if (!_playerMoveAction.action.enabled)
         {
-            Debug.Log("플레이어 이동 액션이 이미 비활성화 되어있습니다.");
+            Debug.Log("플레이어 걷기 액션이 이미 비활성화 되어있습니다.");
             return;
         }
 
@@ -106,6 +130,17 @@ public class InputManager : MonoBehaviour
         }
 
         _playerJumpAction.action.Disable();
+    }
+
+    private void DisablePlayerRunAction()
+    {
+        if (!_playerRunAction.action.enabled)
+        {
+            Debug.Log("플레이어 달리기 액션이 이미 비활성화 되어있습니다.");
+            return;
+        }
+
+        _playerRunAction.action.Disable();
     }
 
     private void EnableAllAction()

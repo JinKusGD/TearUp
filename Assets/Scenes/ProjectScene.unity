@@ -152,6 +152,72 @@ Transform:
   - {fileID: 1230911599}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &259603469
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 259603472}
+  - component: {fileID: 259603470}
+  - component: {fileID: 259603471}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &259603470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259603469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79a4121480038f4da23ab288de77e18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundCheck
+--- !u!65 &259603471
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259603469}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.4, y: 0.05, z: 0.4}
+  m_Center: {x: 0, y: 0, z: 0.06}
+--- !u!4 &259603472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259603469}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5737744345341243610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,7 +528,7 @@ GameObject:
   - component: {fileID: 471720610}
   m_Layer: 0
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -514,7 +580,7 @@ Terrain:
   m_StaticShadowCaster: 0
   m_IgnoreQualitySettings: 0
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 2100000, guid: e80477a6f01422041a5f88f422330ff8, type: 2}
+  m_MaterialTemplate: {fileID: 2100000, guid: 594ea882c5a793440b60ff72d896021e, type: 2}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1
@@ -1322,8 +1388,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5737744345341243610}
-  - component: {fileID: 3028549965621795666}
   - component: {fileID: 5737744345341243614}
+  - component: {fileID: 3028549965621795666}
   - component: {fileID: 5737744345341243612}
   - component: {fileID: 5737744345341243613}
   m_Layer: 0
@@ -1332,7 +1398,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2153859528133439117
 Transform:
   m_ObjectHideFlags: 0
@@ -2182,6 +2248,7 @@ Transform:
   m_Children:
   - {fileID: 6248871592603515182}
   - {fileID: 3765717758596146089}
+  - {fileID: 259603472}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &5737744345341243612
@@ -2246,11 +2313,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2d1568a8501f04dba2eea1bab1e097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  _playerRigidbody: {fileID: 5737744345341243612}
+  _playerRigidbody: {fileID: 0}
   _cameraTransform: {fileID: 0}
+  _playerState: 0
   _playerInput: {x: 0, y: 0}
   _moveSpeed: 10
-  _turnSpeed: 10
+  _turnSpeed: 30
+  _groundCheck: {fileID: 259603470}
+  _isJumpPressed: 0
+  _jumpForce: 8
+  _isGrounded: 0
 --- !u!4 &5813603951189022757
 Transform:
   m_ObjectHideFlags: 0

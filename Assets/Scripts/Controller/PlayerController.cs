@@ -1,14 +1,15 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public enum PlayerState
 {
     Idle,
     Walk,
+    Run,
     Jump,
     Rise,
-    Fall
+    Fall,
+    Land
 }
 
 [RequireComponent(typeof(Rigidbody))]
@@ -22,9 +23,9 @@ public class PlayerController : MonoBehaviour
     [Header("State")]
     [SerializeField] private PlayerState _playerState;
 
-    [Header("MoveSettings")]
+    [Header("WalkSettings")]
     [SerializeField] private Vector2 _playerInput;
-    [SerializeField] private float _moveSpeed = 10.0f;
+    [SerializeField] private float _walkSpeed = 10.0f;
     [SerializeField] private float _turnSpeed = 30.0f;
 
     [Header("JumpSettings")]
@@ -32,6 +33,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool _isJumpPressed;
     [SerializeField] private float _jumpForce = 5.0f;
     [SerializeField] private bool _isGrounded;
+   
+    [Header("RunSettings")]
+    [SerializeField] private bool _isRunPressed;
+    [SerializeField] private float _runSpeed = 20.0f;
 
     private PlayerAnimationController _playerAnimationController; 
 
@@ -80,6 +85,7 @@ public class PlayerController : MonoBehaviour
     {
         InputManager.Instance.BindPlayerMoveAction(OnMove);
         InputManager.Instance.BindPlayerJumpAction(OnJump);
+        InputManager.Instance.BindPlayerRunAction(OnRun);
         _groundCheck.BindGroundCheckAction(OnGroundCheck);
     }
 
@@ -112,6 +118,7 @@ public class PlayerController : MonoBehaviour
     {
         InputManager.Instance.UnBindPlayerMoveAction(OnMove);
         InputManager.Instance.UnBindPlayerJumpAction(OnJump);
+        InputManager.Instance.UnBindPlayerRunAction(OnRun);
         _groundCheck.UnBindGroundCheckAction();
     }
 
@@ -123,7 +130,14 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _playerState = PlayerState.Walk;
+            if (_isRunPressed)
+            {
+                _playerState = PlayerState.Run;
+            }
+            else
+            {
+                _playerState = PlayerState.Walk;
+            }
         }
     }
 
@@ -143,25 +157,6 @@ public class PlayerController : MonoBehaviour
     private void CurrentStateOnUpdate()
     {
         _playerAnimationController.SetState(_playerState);
-
-        switch (_playerState)
-        {
-            case PlayerState.Idle:
-                IdleState();
-                break;
-            case PlayerState.Walk:
-                WalkState();
-                break;
-            case PlayerState.Jump:
-                JumpState();
-                break;
-            case PlayerState.Rise:
-                RiseState();
-                break;
-            case PlayerState.Fall:
-                FallState();
-                break;
-        }
     }
 
     private void OnMove(InputAction.CallbackContext context)
@@ -175,8 +170,21 @@ public class PlayerController : MonoBehaviour
 
         _isJumpPressed = (jumpInput != 0);
     }
+
+    private void OnRun(InputAction.CallbackContext context)
+    {
+        float RunInput = context.ReadValue<float>();
+
+        _isRunPressed = (RunInput != 0);
+    }
+
     private void OnGroundCheck(bool isGrounded)
     {
+        if (isGrounded && _playerState == PlayerState.Fall)
+        {
+            _playerAnimationController.SetState(PlayerState.Land);
+        }
+        
         _isGrounded = isGrounded;
     }
 
@@ -186,6 +194,8 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
+
+        float moveSpeed = (_isRunPressed) ? _runSpeed : _walkSpeed;
 
         Vector3 inputDirection = new Vector3(_playerInput.x, 0f, _playerInput.y).normalized;
 
@@ -197,7 +207,7 @@ public class PlayerController : MonoBehaviour
             Vector3 targetDirection = (cameraForwardDirection * inputDirection.z + cameraRightDirection * inputDirection.x).normalized;
 
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            Vector3 targetPosition = _moveSpeed * Time.fixedDeltaTime * targetDirection;
+            Vector3 targetPosition = moveSpeed * Time.fixedDeltaTime * targetDirection;
 
             _playerRigidbody.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, _turnSpeed * Time.fixedDeltaTime));
             _playerRigidbody.MovePosition(_playerRigidbody.position + targetPosition);
@@ -219,36 +229,5 @@ public class PlayerController : MonoBehaviour
 
         _playerAnimationController.SetState(PlayerState.Jump);
         _playerRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-    }
-
-    private void IdleState()
-    {
-        Debug.Log("Idle 상태");
-    }
-
-    private void WalkState()
-    {
-        Debug.Log("Move 상태");
-    }
-
-    private void JumpState()
-    {
-        Debug.Log("jump 상태");
-    }
-
-    private void RiseState()
-    {
-        Debug.Log("Rise 상태");
-        //_playerRigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (_fallMultiplier - 1) * Time.fixedDeltaTime;
-
-        // 예: _animator.SetBool("IsFalling", true);
-    }
-
-    private void FallState()
-    {
-        Debug.Log("Fall 상태");
-        //_playerRigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (_fallMultiplier - 1) * Time.fixedDeltaTime;
-
-        // 예: _animator.SetBool("IsFalling", true);
     }
 }
