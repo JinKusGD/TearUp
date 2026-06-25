@@ -2247,13 +2247,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   _playerRigidbody: {fileID: 5737744345341243612}
+  _cameraTransform: {fileID: 0}
   _playerInput: {x: 0, y: 0}
   _moveSpeed: 10
   _turnSpeed: 10
-  _jumpPressed: 0
-  _jumpForce: 10
-  _isGrounded: 0
-  _groundCheck: {fileID: 0}
 --- !u!4 &5813603951189022757
 Transform:
   m_ObjectHideFlags: 0

@@ -52,7 +52,6 @@ public class InputManager : MonoBehaviour
         _playerJumpAction.action.performed -= callback;
     }
 
-
     public void EnablePlayerAction()
     {
         EnablePlayerMoveAction();
