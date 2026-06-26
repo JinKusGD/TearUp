@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -121,6 +123,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        AttackCooldown();
+
         if (_playerState == PlayerState.Attack) { return; }
 
         Move();
@@ -129,6 +133,15 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
+    }
+
+    private void AttackCooldown()
+    {
+        if(attackCoolDown == 0) { return; }
+
+        float targetCoolDown = attackCoolDown -= Time.deltaTime;
+
+        attackCoolDown = Mathf.Clamp(attackCoolDown, 0, attackCoolTime);
     }
 
     private void OnDisable()
@@ -259,6 +272,10 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
+        if(attackCoolDown != 0) { return; }
+
+        attackCoolDown = attackCoolTime;
+
         _playerState = PlayerState.Attack;
         _playerAnimationController.SetState(PlayerState.Attack);
         StartCoroutine(Wait());
@@ -313,4 +330,6 @@ public class PlayerController : MonoBehaviour
 
     public Vector3 boxHalfExtents = new Vector3(0.3f, 0.3f, 0.25f);
     public float attack = 10.0f;
+    public float attackCoolTime = 5.0f;
+    [SerializeField] public float attackCoolDown = 0.0f;
 }
