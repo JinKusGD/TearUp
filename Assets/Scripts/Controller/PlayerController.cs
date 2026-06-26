@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool _isAttackPressed;
 
     private PlayerAnimationController _playerAnimationController; 
+ 
 
     private void Awake()
     {
@@ -273,5 +274,43 @@ public class PlayerController : MonoBehaviour
     public void OnAttackHit()
     {
         Debug.Log("공격 판정 시작");
+
+        Vector3 finalCheckPosition = Chest.position + (Chest.forward * AttackOffset);
+
+        if (hitColliders == null)
+        {
+            hitColliders = new Collider[maxHitCount];
+        }
+
+        int hitCount = Physics.OverlapBoxNonAlloc(
+            finalCheckPosition,
+            boxHalfExtents,
+            hitColliders,
+            Chest.rotation,
+            targetLayer
+        );
+
+        for (int i = 0; i < hitCount; i++)
+        {
+           Collider hitCollider = hitColliders[i];
+
+
+            if (hitCollider.TryGetComponent<Enemy>(out var enemy))
+            {
+                enemy.OnTakeDamage(attack);
+            }
+        }
+
     }
+
+    [SerializeField] private Transform Chest;
+
+    Collider[] hitColliders;
+    [SerializeField] private int maxHitCount = 10; 
+
+    [SerializeField] private float AttackOffset = 0.5f;
+    [SerializeField] private LayerMask targetLayer;
+
+    public Vector3 boxHalfExtents = new Vector3(0.3f, 0.3f, 0.25f);
+    public float attack = 10.0f;
 }
