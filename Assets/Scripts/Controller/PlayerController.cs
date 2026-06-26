@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public enum PlayerState
@@ -9,7 +10,8 @@ public enum PlayerState
     Jump,
     Rise,
     Fall,
-    Land
+    Land,
+    Attack
 }
 
 [RequireComponent(typeof(Rigidbody))]
@@ -37,6 +39,9 @@ public class PlayerController : MonoBehaviour
     [Header("RunSettings")]
     [SerializeField] private bool _isRunPressed;
     [SerializeField] private float _runSpeed = 20.0f;
+
+    [Header("AttackSettings")]
+    [SerializeField] private bool _isAttackPressed;
 
     private PlayerAnimationController _playerAnimationController; 
 
@@ -86,11 +91,20 @@ public class PlayerController : MonoBehaviour
         InputManager.Instance.BindPlayerMoveAction(OnMove);
         InputManager.Instance.BindPlayerJumpAction(OnJump);
         InputManager.Instance.BindPlayerRunAction(OnRun);
+        InputManager.Instance.BindPlayerAttackAction(OnAttack);
         _groundCheck.BindGroundCheckAction(OnGroundCheck);
     }
 
     private void Update()
     {
+        if(_playerState == PlayerState.Attack) { return; }
+
+        if (_isAttackPressed)
+        {
+            Attack();
+            return;
+        }
+
         if (_isGrounded)
         {
             UpdateGroundState();
@@ -106,6 +120,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (_playerState == PlayerState.Attack) { return; }
+
         Move();
 
         if (_isJumpPressed)
@@ -119,6 +135,7 @@ public class PlayerController : MonoBehaviour
         InputManager.Instance.UnBindPlayerMoveAction(OnMove);
         InputManager.Instance.UnBindPlayerJumpAction(OnJump);
         InputManager.Instance.UnBindPlayerRunAction(OnRun);
+        InputManager.Instance.UnBindPlayerAttackAction(OnAttack);
         _groundCheck.UnBindGroundCheckAction();
     }
 
@@ -154,6 +171,7 @@ public class PlayerController : MonoBehaviour
             _playerState = PlayerState.Fall;
         }
     }
+
     private void CurrentStateOnUpdate()
     {
         _playerAnimationController.SetState(_playerState);
@@ -176,6 +194,13 @@ public class PlayerController : MonoBehaviour
         float RunInput = context.ReadValue<float>();
 
         _isRunPressed = (RunInput != 0);
+    }
+
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        float AttackInput = context.ReadValue<float>();
+
+        _isAttackPressed = (AttackInput != 0);
     }
 
     private void OnGroundCheck(bool isGrounded)
@@ -229,5 +254,24 @@ public class PlayerController : MonoBehaviour
 
         _playerAnimationController.SetState(PlayerState.Jump);
         _playerRigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+    }
+
+    private void Attack()
+    {
+        _playerState = PlayerState.Attack;
+        _playerAnimationController.SetState(PlayerState.Attack);
+        StartCoroutine(Wait());
+    }
+
+    private IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(3);
+
+        _playerState = PlayerState.Idle;
+    }
+
+    public void OnAttackHit()
+    {
+        Debug.Log("공격 판정 시작");
     }
 }

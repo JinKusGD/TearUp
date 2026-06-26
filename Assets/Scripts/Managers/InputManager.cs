@@ -10,6 +10,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] private InputActionReference _playerMoveAction;
     [SerializeField] private InputActionReference _playerJumpAction;
     [SerializeField] private InputActionReference _playerRunAction;
+    [SerializeField] private InputActionReference _playerAttackAction;
 
     private void Awake()
     {
@@ -48,6 +49,11 @@ public class InputManager : MonoBehaviour
         _playerRunAction.action.performed += callback;
     }
 
+    public void BindPlayerAttackAction(Action<InputAction.CallbackContext> callback)
+    {
+        _playerAttackAction.action.performed += callback;
+    }
+
     public void UnBindPlayerMoveAction(Action<InputAction.CallbackContext> callback)
     {
         _playerMoveAction.action.performed -= callback;
@@ -63,11 +69,18 @@ public class InputManager : MonoBehaviour
         _playerRunAction.action.performed -= callback;
     }
 
+    public void UnBindPlayerAttackAction(Action<InputAction.CallbackContext> callback)
+    {
+        _playerAttackAction.action.performed -= callback;
+    }
+
     public void EnablePlayerAction()
     {
         EnablePlayerMoveAction();
         EnablePlayerJumpAction();
         EnablePlayerRunAction();
+        EnablePlayerAttackAction();
+
     }
 
     public void DisablePlayerAction()
@@ -75,6 +88,7 @@ public class InputManager : MonoBehaviour
         DisablePlayerMoveAction();
         DisablePlayerJumpAction();
         DisablePlayerRunAction();
+        DisablePlayerAttackAction();
     }
 
     private void EnablePlayerMoveAction()
@@ -110,6 +124,17 @@ public class InputManager : MonoBehaviour
         _playerRunAction.action.Enable();
     }
 
+    private void EnablePlayerAttackAction()
+    {
+        if (_playerAttackAction.action.enabled)
+        {
+            Debug.Log("플레이어 공격 액션이 이미 활성화 되어있습니다.");
+            return;
+        }
+
+        _playerAttackAction.action.Enable();
+    }
+
     private void DisablePlayerMoveAction()
     {
         if (!_playerMoveAction.action.enabled)
@@ -141,6 +166,17 @@ public class InputManager : MonoBehaviour
         }
 
         _playerRunAction.action.Disable();
+    }
+
+    private void DisablePlayerAttackAction()
+    {
+        if (!_playerAttackAction.action.enabled)
+        {
+            Debug.Log("플레이어 공격 액션이 이미 비활성화 되어있습니다.");
+            return;
+        }
+
+        _playerAttackAction.action.Disable();
     }
 
     private void EnableAllAction()

@@ -38,6 +38,9 @@ public class PlayerAnimationController
             case PlayerState.Land:
                 _animator.SetTrigger("Land");
                 break;
+            case PlayerState.Attack:
+                _animator.SetTrigger("Attack");
+                break;
         }
     }
 
