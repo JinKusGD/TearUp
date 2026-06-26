@@ -51,4 +51,18 @@ public class ObjectManager : MonoBehaviour
 
         component.TakeDamage(damage);
     }
+
+    public void RequestHealByInstanceId(int instanceId, float value)
+    {
+        GameObject targetObject = gameObjectList[instanceId];
+
+        if (targetObject== null )
+        {
+            return;
+        }
+
+        var component =  targetObject.GetComponent<ITakeDamageable>();
+
+        component.Heal(value);
+    }
 }

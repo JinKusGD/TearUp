@@ -86,6 +86,8 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         }
 
         _playerAnimationController = new PlayerAnimationController(animator);
+
+        Hp = 90;
     }
 
     private void OnEnable()
@@ -316,7 +318,17 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         Debug.Log(Hp);
     }
 
-    public float Hp { get; private set; } = 100;
+    public void Heal(float value)
+    {
+        float targetHp = Hp + value;
+        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
+        Debug.Log("사운드 재생");
+        Debug.Log(Hp);
+    }
+
+    public float MaxHp { get; private set; } = 100;
+
+    public float Hp { get; private set; }
 
     [SerializeField] private Transform Chest;
 
