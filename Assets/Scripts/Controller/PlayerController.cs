@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,7 +17,7 @@ public enum PlayerState
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Animator))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 {
     [Header("Components")]
     [SerializeField] private Rigidbody _playerRigidbody;
@@ -290,8 +289,6 @@ public class PlayerController : MonoBehaviour
 
     public void OnAttackHit()
     {
-        Debug.Log("공격 판정 시작");
-
         Vector3 finalCheckPosition = Chest.position + (Chest.forward * AttackOffset);
 
         if (hitColliders == null)
@@ -299,26 +296,27 @@ public class PlayerController : MonoBehaviour
             hitColliders = new Collider[maxHitCount];
         }
 
-        int hitCount = Physics.OverlapBoxNonAlloc(
-            finalCheckPosition,
-            boxHalfExtents,
-            hitColliders,
-            Chest.rotation,
-            targetLayer
-        );
+        int hitCount = Physics.OverlapBoxNonAlloc(finalCheckPosition, boxHalfExtents, hitColliders, Chest.rotation, targetLayer);
 
         for (int i = 0; i < hitCount; i++)
         {
            Collider hitCollider = hitColliders[i];
 
-
-            if (hitCollider.TryGetComponent<Enemy>(out var enemy))
+            if (hitCollider.TryGetComponent<IInstanceable>(out var enemy))
             {
-                enemy.OnTakeDamage(attack);
+                ObjectManager.Instance.RequestHitDamageByInstanceId(enemy.InstanceId, attack);
             }
         }
-
     }
+
+    public void TakeDamage(float damage)
+    {
+        Hp -= damage;
+        Debug.Log("사운드 재생");
+        Debug.Log(Hp);
+    }
+
+    public float Hp { get; private set; } = 100;
 
     [SerializeField] private Transform Chest;
 

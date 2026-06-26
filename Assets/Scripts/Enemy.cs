@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : EntityBase, ITakeDamageable
 {
-    private float _hp = 100;
+    public float Hp { get; private set; } = 100;
 
-    public void OnTakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
-        _hp -= damage;
+        Hp -= damage;
         Debug.Log("사운드 재생");
-        Debug.Log(_hp);
+        Debug.Log(Hp);
     }
 }
