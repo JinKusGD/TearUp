@@ -38,6 +38,13 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
+    public GameObject GetObjectByInstanceId(int instanceId)
+    {
+        GameObject targetObject = gameObjectList[instanceId];
+
+        return targetObject;
+    }
+
     public void RequestHitDamageByInstanceId(int instanceId, float damage)
     {
         GameObject targetObject = gameObjectList[instanceId];
