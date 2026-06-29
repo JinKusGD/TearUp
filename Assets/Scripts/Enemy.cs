@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static UnityEngine.AdaptivePerformance.Provider.AdaptivePerformanceSubsystemDescriptor;
 
 public class Enemy : EntityBase, ITakeDamageable
 {

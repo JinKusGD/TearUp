@@ -44,8 +44,8 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
     [Header("AttackSettings")]
     [SerializeField] private bool _isAttackPressed;
 
-    private PlayerAnimationController _playerAnimationController; 
- 
+    private PlayerAnimationController _playerAnimationController;
+    private PlayerHpInfo _hpInfo;
 
     private void Awake()
     {
@@ -88,6 +88,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         _playerAnimationController = new PlayerAnimationController(animator);
 
         Hp = 90;
+        _hpInfo = new PlayerHpInfo(MaxHp, Hp);
     }
 
     private void OnEnable()
@@ -97,6 +98,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         InputManager.Instance.BindPlayerRunAction(OnRun);
         InputManager.Instance.BindPlayerAttackAction(OnAttack);
         _groundCheck.BindGroundCheckAction(OnGroundCheck);
+        HpHudChange();
     }
 
     private void Update()
@@ -315,7 +317,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
     {
         Hp -= damage;
         Debug.Log("사운드 재생");
-        Debug.Log(Hp);
+        HpHudChange();
     }
 
     public void Heal(float value)
@@ -323,7 +325,13 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         float targetHp = Hp + value;
         Hp = Mathf.Clamp(targetHp, 0, MaxHp);
         Debug.Log("사운드 재생");
-        Debug.Log(Hp);
+        HpHudChange();
+    }
+
+    private void HpHudChange()
+    {
+        _hpInfo.Hp = Hp;
+        EventBus.Invoke(_hpInfo);
     }
 
     public float MaxHp { get; private set; } = 100;
