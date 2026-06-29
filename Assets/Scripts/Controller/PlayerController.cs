@@ -294,6 +294,8 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
     public void OnAttackHit()
     {
+        AudioManager.Instance.PlaySFX(ClipType.Attack);
+
         Vector3 finalCheckPosition = Chest.position + (Chest.forward * AttackOffset);
 
         if (hitColliders == null)
@@ -323,7 +325,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
         float targetHp = Hp - damage;
         Hp = Mathf.Clamp(targetHp, 0, MaxHp);
-        Debug.Log("사운드 재생");
+        AudioManager.Instance.PlaySFX(ClipType.Damage);
         Debug.Log(Hp);
         HpHudChange();
     }
@@ -337,7 +339,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
         float targetHp = Hp + value;
         Hp = Mathf.Clamp(targetHp, 0, MaxHp);
-        Debug.Log("사운드 재생");
+        AudioManager.Instance.PlaySFX(ClipType.Heal);
         Debug.Log(Hp);
         HpHudChange();
     }
@@ -361,7 +363,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
     [SerializeField] private LayerMask targetLayer;
 
     public Vector3 boxHalfExtents = new Vector3(0.3f, 0.3f, 0.25f);
-    public float attack = 10.0f;
+    public float attack = 30.0f;
     public float attackCoolTime = 5.0f;
     [SerializeField] public float attackCoolDown = 0.0f;
 }
