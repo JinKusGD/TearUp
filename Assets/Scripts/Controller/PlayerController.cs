@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum PlayerState
 {
@@ -315,16 +316,29 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
     public void TakeDamage(float damage)
     {
-        Hp -= damage;
+        if (Hp <= 0)
+        {
+            return;
+        }
+
+        float targetHp = Hp - damage;
+        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
         Debug.Log("사운드 재생");
+        Debug.Log(Hp);
         HpHudChange();
     }
 
     public void Heal(float value)
     {
+        if (Hp >= MaxHp)
+        {
+            return;
+        }
+
         float targetHp = Hp + value;
         Hp = Mathf.Clamp(targetHp, 0, MaxHp);
         Debug.Log("사운드 재생");
+        Debug.Log(Hp);
         HpHudChange();
     }
 
