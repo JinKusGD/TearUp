@@ -449,10 +449,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 243481033}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca28484a46a152244a647f2fc6f5babe, type: 3}
+  m_Script: {fileID: 11500000, guid: b0771321db42740409d1e90cdba92df1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DangerZone
   _zoneType: 0
+  _coolTime: 1
+  _cooldown: 0
+  _value: 5
 --- !u!1 &259603469
 GameObject:
   m_ObjectHideFlags: 0
@@ -1374,10 +1377,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1005590177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca28484a46a152244a647f2fc6f5babe, type: 3}
+  m_Script: {fileID: 11500000, guid: b0771321db42740409d1e90cdba92df1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DangerZone
   _zoneType: 1
+  _coolTime: 1
+  _cooldown: 0
+  _value: 5
 --- !u!65 &1005590179
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2609,7 +2615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f894914420bfcf84d9765b33e5e24c24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthPosion
-  value: 10
+  _value: 10
 --- !u!1 &1854465624
 GameObject:
   m_ObjectHideFlags: 0
@@ -4051,7 +4057,7 @@ MonoBehaviour:
   _chest: {fileID: 8878106452343618042}
   _playerState: 0
   _attackPower: 30
-  _attackCoolTime: 5
+  _attackCoolTime: 3
   _attackCoolDown: 0
   _playerInput: {x: 0, y: 0}
   _walkSpeed: 10

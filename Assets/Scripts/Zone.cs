@@ -6,7 +6,7 @@ public enum ZoneType
     Heal
 }
 
-public class DangerZone : MonoBehaviour
+public class Zone : MonoBehaviour
 {
     [SerializeField] private ZoneType _zoneType;
     [SerializeField] private float _coolTime = 1.0f;
