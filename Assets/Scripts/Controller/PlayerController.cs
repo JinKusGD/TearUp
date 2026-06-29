@@ -23,9 +23,15 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
     [Header("Components")]
     [SerializeField] private Rigidbody _playerRigidbody;
     [SerializeField] private Transform _cameraTransform;
+    [SerializeField] private Transform _chest;
 
     [Header("State")]
     [SerializeField] private PlayerState _playerState;
+
+    [Header("PlayerInfo")]
+    [SerializeField] private float _attackPower = 30.0f;
+    [SerializeField] private float _attackCoolTime = 5.0f;
+    [SerializeField] private float _attackCoolDown = 0.0f;
 
     [Header("WalkSettings")]
     [SerializeField] private Vector2 _playerInput;
@@ -44,9 +50,19 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
     [Header("AttackSettings")]
     [SerializeField] private bool _isAttackPressed;
-
+    [SerializeField] private int _maxHitCount = 10;
+    [SerializeField] private float _attackOffset = 0.5f;
+    [SerializeField] private LayerMask _targetLayer;
+   
     private PlayerAnimationController _playerAnimationController;
     private PlayerHpInfo _hpInfo;
+
+    private Collider[] _hitColliders;
+    private Vector3 _boxHalfExtents = new Vector3(0.3f, 0.3f, 0.25f);
+
+    public float MaxHp { get; private set; } = 100.0f;
+
+    public float Hp { get; private set; } = 0.0f;
 
     private void Awake()
     {
@@ -88,8 +104,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
         _playerAnimationController = new PlayerAnimationController(animator);
 
-        Hp = 90;
-        _hpInfo = new PlayerHpInfo(MaxHp, Hp);
+        _hpInfo = new PlayerHpInfo(0, 0);
     }
 
     private void OnEnable()
@@ -99,6 +114,7 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         InputManager.Instance.BindPlayerRunAction(OnRun);
         InputManager.Instance.BindPlayerAttackAction(OnAttack);
         _groundCheck.BindGroundCheckAction(OnGroundCheck);
+        InitStat();
         HpHudChange();
     }
 
@@ -139,15 +155,6 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         }
     }
 
-    private void AttackCooldown()
-    {
-        if(attackCoolDown == 0) { return; }
-
-        float targetCoolDown = attackCoolDown -= Time.deltaTime;
-
-        attackCoolDown = Mathf.Clamp(attackCoolDown, 0, attackCoolTime);
-    }
-
     private void OnDisable()
     {
         InputManager.Instance.UnBindPlayerMoveAction(OnMove);
@@ -155,6 +162,72 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         InputManager.Instance.UnBindPlayerRunAction(OnRun);
         InputManager.Instance.UnBindPlayerAttackAction(OnAttack);
         _groundCheck.UnBindGroundCheckAction();
+    }
+
+    public void OnAttackHit()
+    {
+        AudioManager.Instance.PlaySFX(ClipType.Attack);
+
+        Vector3 finalCheckPosition = _chest.position + (_chest.forward * _attackOffset);
+
+        if (_hitColliders == null)
+        {
+            _hitColliders = new Collider[_maxHitCount];
+        }
+
+        int hitCount = Physics.OverlapBoxNonAlloc(finalCheckPosition, _boxHalfExtents, _hitColliders, _chest.rotation, _targetLayer);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider hitCollider = _hitColliders[i];
+
+            if (hitCollider.TryGetComponent<IInstanceable>(out var enemy))
+            {
+                ObjectManager.Instance.RequestHitDamageByInstanceId(enemy.InstanceId, _attackPower);
+            }
+        }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (Hp <= 0)
+        {
+            return;
+        }
+
+        float targetHp = Hp - damage;
+        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
+        AudioManager.Instance.PlaySFX(ClipType.Damage);
+        HpHudChange();
+    }
+
+    public void Heal(float value)
+    {
+        if (Hp >= MaxHp)
+        {
+            return;
+        }
+
+        float targetHp = Hp + value;
+        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
+        AudioManager.Instance.PlaySFX(ClipType.Heal);
+        HpHudChange();
+    }
+
+    private void InitStat()
+    {
+        Hp = MaxHp;
+        _hpInfo.MaxHp = MaxHp;
+        _hpInfo.Hp = Hp;
+    }
+
+    private void AttackCooldown()
+    {
+        if(_attackCoolDown == 0) { return; }
+
+        float targetCoolDown = _attackCoolDown -= Time.deltaTime;
+
+        _attackCoolDown = Mathf.Clamp(_attackCoolDown, 0, _attackCoolTime);
     }
 
     private void UpdateGroundState()
@@ -276,9 +349,9 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
 
     private void Attack()
     {
-        if(attackCoolDown != 0) { return; }
+        if(_attackCoolDown != 0) { return; }
 
-        attackCoolDown = attackCoolTime;
+        _attackCoolDown = _attackCoolTime;
 
         _playerState = PlayerState.Attack;
         _playerAnimationController.SetState(PlayerState.Attack);
@@ -292,78 +365,9 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         _playerState = PlayerState.Idle;
     }
 
-    public void OnAttackHit()
-    {
-        AudioManager.Instance.PlaySFX(ClipType.Attack);
-
-        Vector3 finalCheckPosition = Chest.position + (Chest.forward * AttackOffset);
-
-        if (hitColliders == null)
-        {
-            hitColliders = new Collider[maxHitCount];
-        }
-
-        int hitCount = Physics.OverlapBoxNonAlloc(finalCheckPosition, boxHalfExtents, hitColliders, Chest.rotation, targetLayer);
-
-        for (int i = 0; i < hitCount; i++)
-        {
-           Collider hitCollider = hitColliders[i];
-
-            if (hitCollider.TryGetComponent<IInstanceable>(out var enemy))
-            {
-                ObjectManager.Instance.RequestHitDamageByInstanceId(enemy.InstanceId, attack);
-            }
-        }
-    }
-
-    public void TakeDamage(float damage)
-    {
-        if (Hp <= 0)
-        {
-            return;
-        }
-
-        float targetHp = Hp - damage;
-        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
-        AudioManager.Instance.PlaySFX(ClipType.Damage);
-        Debug.Log(Hp);
-        HpHudChange();
-    }
-
-    public void Heal(float value)
-    {
-        if (Hp >= MaxHp)
-        {
-            return;
-        }
-
-        float targetHp = Hp + value;
-        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
-        AudioManager.Instance.PlaySFX(ClipType.Heal);
-        Debug.Log(Hp);
-        HpHudChange();
-    }
-
     private void HpHudChange()
     {
         _hpInfo.Hp = Hp;
         EventBus.Invoke(_hpInfo);
     }
-
-    public float MaxHp { get; private set; } = 100;
-
-    public float Hp { get; private set; }
-
-    [SerializeField] private Transform Chest;
-
-    Collider[] hitColliders;
-    [SerializeField] private int maxHitCount = 10; 
-
-    [SerializeField] private float AttackOffset = 0.5f;
-    [SerializeField] private LayerMask targetLayer;
-
-    public Vector3 boxHalfExtents = new Vector3(0.3f, 0.3f, 0.25f);
-    public float attack = 30.0f;
-    public float attackCoolTime = 5.0f;
-    [SerializeField] public float attackCoolDown = 0.0f;
 }

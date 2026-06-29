@@ -1,46 +1,32 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class Enemy : EntityBase, ITakeDamageable
+public class EnemyController : EntityBase, ITakeDamageable
 {
     [SerializeField] private Rigidbody _rigidbody;
-
+   
+    private EnemyHpInfo _hpInfo;
+    private bool _isDead;
+   
     public float Hp { get; private set; } = 100;
 
     public float MaxHp { get; private set; } = 100;
 
-    private EnemyHpInfo hpInfo;
-    private bool isDead;
-
     private void Awake()
     {
-        hpInfo = new EnemyHpInfo(name, MaxHp, Hp);
+        _hpInfo = new EnemyHpInfo(name, 0, 0);
     }
 
     private void OnEnable()
     {
-        isDead = false;
-    }
-
-    public void Heal(float value)
-    {
-        if (isDead) { return; }
-
-        if (Hp >= MaxHp)
-        {
-            return;
-        }
-
-        float targetHp = Hp + value;
-        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
-        AudioManager.Instance.PlaySFX(ClipType.Heal);
-
-        HpHudChange();
+        _hpInfo.MaxHp = MaxHp;
+        _hpInfo.Hp = Hp;
+        _isDead = false;
     }
 
     public void TakeDamage(float damage)
     {
-        if (isDead) { return; }
+        if (_isDead) { return; }
 
         if (Hp <= 0)
         {
@@ -60,9 +46,25 @@ public class Enemy : EntityBase, ITakeDamageable
         AudioManager.Instance.PlaySFX(ClipType.Damage);
     }
 
+    public void Heal(float value)
+    {
+        if (_isDead) { return; }
+
+        if (Hp >= MaxHp)
+        {
+            return;
+        }
+
+        float targetHp = Hp + value;
+        Hp = Mathf.Clamp(targetHp, 0, MaxHp);
+        AudioManager.Instance.PlaySFX(ClipType.Heal);
+
+        HpHudChange();
+    }
+
     private void Dead()
     {
-        isDead = true;
+        _isDead = true;
         _rigidbody.isKinematic = false;
         _rigidbody.useGravity = true;
 
@@ -79,7 +81,7 @@ public class Enemy : EntityBase, ITakeDamageable
 
     private void HpHudChange()
     {
-        hpInfo.Hp = Hp;
-        EventBus.Invoke(hpInfo);
+        _hpInfo.Hp = Hp;
+        EventBus.Invoke(_hpInfo);
     }
 }

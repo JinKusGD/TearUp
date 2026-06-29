@@ -2,7 +2,7 @@
 
 public class HealthPosion : MonoBehaviour
 {
-    [SerializeField] private float value  = 10;
+    [SerializeField] private float _value  = 10;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -13,7 +13,7 @@ public class HealthPosion : MonoBehaviour
 
          var instanceable = other.GetComponent<IInstanceable>();
 
-        ObjectManager.Instance.RequestHealByInstanceId(instanceable.InstanceId, value);
+        ObjectManager.Instance.RequestHealByInstanceId(instanceable.InstanceId, _value);
 
         gameObject.SetActive(false);
     }

@@ -9,9 +9,9 @@ public enum ZoneType
 public class DangerZone : MonoBehaviour
 {
     [SerializeField] private ZoneType _zoneType;
-    private float _coolTime = 1.0f;
-    private float _cooldown = 0.0f;
-    private float _value = 5.0f;
+    [SerializeField] private float _coolTime = 1.0f;
+    [SerializeField] private float _cooldown = 0.0f;
+    [SerializeField] private float _value = 5.0f;
 
     private ITakeDamageable _damageable;
 
