@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 public class ItemData
@@ -19,7 +20,7 @@ public class InventoryManager : MonoBehaviour
 
     private readonly List<ItemData> _inventory = new List<ItemData>();
 
-    private Action<string> _onInventoryChanged;
+    private Action<ItemData> _onInventoryChanged;
 
     private void Awake()
     {
@@ -35,7 +36,7 @@ public class InventoryManager : MonoBehaviour
         InitMaxCount();
     }
 
-    public void BindInventoryChangeAction(Action<string> InventoryChangedCallback)
+    public void BindInventoryChangeAction(Action<ItemData> InventoryChangedCallback)
     {
         _onInventoryChanged += InventoryChangedCallback;
     }
@@ -63,15 +64,13 @@ public class InventoryManager : MonoBehaviour
 
             int RemainingCount = inventoryItemData.ItemMaxCount - inventoryItemData.ItemCount;
 
-            if (RemainingCount >= remainingAddCount)
-            {
-                inventoryItemData.ItemCount += remainingAddCount;
-                remainingAddCount = 0;
-                break;
-            }
+            int amountToAdd = Mathf.Min(RemainingCount, remainingAddCount);
 
-            inventoryItemData.ItemCount += RemainingCount;
-            remainingAddCount -= RemainingCount;
+            inventoryItemData.ItemCount += amountToAdd;
+            remainingAddCount -= amountToAdd;
+            InvokeChangeAction(inventoryItemData);
+
+            if (remainingAddCount <= 0) { break; }
         }
 
         while (remainingAddCount > 0)
@@ -102,6 +101,7 @@ public class InventoryManager : MonoBehaviour
         newItem.ItemMaxCount = maxCount;
 
         _inventory.Add(newItem);
+        InvokeChangeAction(newItem);
 
         return addCount;
     }
@@ -109,7 +109,23 @@ public class InventoryManager : MonoBehaviour
     private void InitMaxCount()
     {
         maxCounts[ItemType.Equip] = 1;
-        maxCounts[ItemType.Use] = 999;
+        maxCounts[ItemType.Use] = 99;
+    }
+
+    private void InvokeChangeAction(ItemData itemData)
+    {
+        if (itemData == null)
+        {
+            Debug.LogError("올바르지 않은 아이템 데이터 입니다.");
+            return;
+        }
+
+        if (_onInventoryChanged == null)
+        {
+            return;
+        }
+
+        _onInventoryChanged.Invoke(itemData);
     }
 
     private static long _lastId = 0;

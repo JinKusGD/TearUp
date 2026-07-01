@@ -23,27 +23,13 @@ public class InventorySlot : MonoBehaviour
     {
         _slotItemUId = itemUId;
 
-        StartCoroutine(LoadSlotIcon(itemName));
-        _inventorySlotButton.ChangeCount(itemCount);
+        ChangeIcon(itemName);
+        ChangeCountText(itemCount);
     }
 
-    private IEnumerator LoadSlotIcon(string itemName)
+    public void ChangeCountText(int count)
     {
-        string resourcePath = $"ItemIcons/{itemName}";
-
-        ResourceRequest resourceRequest = Resources.LoadAsync<Sprite>(resourcePath);
-
-        yield return resourceRequest;
-
-        if (resourceRequest.asset == null)
-        {
-            Debug.LogError($"[InitSlot] 에셋을 찾을 수 없습니다.");
-            yield break;
-        }
-
-        Sprite loadedSprite = resourceRequest.asset as Sprite;
-
-        _inventorySlotButton.ChangeIcon(loadedSprite);
+        _inventorySlotButton.ChangeCount(count);
     }
 
     public void BindSlotClickAction(Action<long> slotClickAction)
@@ -59,6 +45,21 @@ public class InventorySlot : MonoBehaviour
         }
 
         _onSlotClickAction = null;
+    }
+
+    private void ChangeIcon(string itemName)
+    {
+        string resourcePath = $"ItemIcons/{itemName}";
+
+        Sprite sprite = Resources.Load<Sprite>(resourcePath);
+
+        if (sprite == null)
+        {
+            Debug.LogError($"{resourcePath} 에셋을 찾을 수 없습니다.");
+            return;
+        }
+
+        _inventorySlotButton.ChangeIcon(sprite);
     }
 
     private void OnSlotClick()
