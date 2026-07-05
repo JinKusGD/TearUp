@@ -2,16 +2,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
+    private readonly Color _defaultColor = Color.white;
+    private readonly Color _selectColor = Color.yellow;
+
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _scrollViewContentTransform;
 
-    private Dictionary<long, InventorySlot> _slotDict = new Dictionary<long, InventorySlot>();
+    private readonly Dictionary<long, InventorySlot> _slotDict = new Dictionary<long, InventorySlot>();
 
     private long _selectedSlotItemUId;
 
@@ -41,7 +42,7 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        inventorySlot.InitializeSlot(itemData.ItemUId, itemData.itemName, itemData.ItemCount);
+        inventorySlot.InitializeSlot(itemData.ItemUId, itemData.ItemName, itemData.ItemCount);
 
         _slotDict.Add(itemData.ItemUId, inventorySlot);
         inventorySlot.BindSlotClickAction(OnSlotClick);
@@ -49,7 +50,13 @@ public class InventoryUI : MonoBehaviour
 
     private void RemoveSlot(long itemUId)
     {
-        Debug.Log($"{itemUId} 슬롯 제거");
+        if (!_slotDict.TryGetValue(itemUId, out InventorySlot inventorySlot))
+        {
+            Debug.LogError("존재하지 않는 슬롯입니다.");
+        }
+
+        Destroy(inventorySlot.gameObject);
+        _slotDict.Remove(itemUId);
     }
 
     private void OnInventoryChanged(ItemData itemData)
@@ -85,6 +92,20 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
+        if (_selectedSlotItemUId == ItemUId)
+        {
+            InventoryManager.Instance.RequestUseItem(_selectedSlotItemUId);
+            return;
+        }
+
+        if (_slotDict.TryGetValue(_selectedSlotItemUId, out InventorySlot beforeInventorySlot))
+        {
+            beforeInventorySlot.ChangeSelectImage(_defaultColor);
+        }
+
         _selectedSlotItemUId = ItemUId;
+
+        InventorySlot afterInventorySlot = _slotDict[ItemUId];
+        afterInventorySlot.ChangeSelectImage(_selectColor);
     }
 }
