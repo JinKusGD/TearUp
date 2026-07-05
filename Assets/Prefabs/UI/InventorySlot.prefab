@@ -200,6 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 444520d03d8e4124a9ef5dc5ea0ac114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventorySlot
+  _selectImage: {fileID: 513830142067770288}
   _inventorySlotButton: {fileID: 4047733987774083221}
 --- !u!1 &6740324491899227541
 GameObject:
