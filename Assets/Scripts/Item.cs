@@ -11,6 +11,8 @@ public class Item : MonoBehaviour
 {
     [SerializeField] private ItemType _itemType;
     [SerializeField] private string _itemName;
+    [SerializeField] private UseItemType _useItemType;
+    [SerializeField] private float _value;
     [SerializeField] private int _addCount;
 
     private void Awake()
@@ -38,7 +40,7 @@ public class Item : MonoBehaviour
             return;
         }
 
-        InventoryManager.Instance.AddItem(_itemType, _itemName, _addCount);
+        InventoryManager.Instance.AddItem(_itemType, _itemName, _useItemType, _value, _addCount);
 
         gameObject.SetActive(false);
     }

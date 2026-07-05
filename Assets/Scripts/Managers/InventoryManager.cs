@@ -4,10 +4,20 @@ using System.Threading;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
+public enum UseItemType
+{
+    None,
+    HpUp,
+    SpeedUp
+}
+
 public class ItemData
 {
     public long ItemUId;
-    public string itemName;
+    public string ItemName;
+    public ItemType ItemType;
+    public UseItemType UseItemType;
+    public float Value;
     public int ItemCount;
     public int ItemMaxCount;
 }
@@ -46,13 +56,13 @@ public class InventoryManager : MonoBehaviour
         return _inventory;
     }
 
-    public void AddItem(ItemType itemType, string itemName, int addCount)
+    public void AddItem(ItemType itemType, string itemName, UseItemType useItemType, float value, int addCount)
     {
         int remainingAddCount = addCount;
 
         foreach (ItemData inventoryItemData in _inventory) 
         {
-            if (inventoryItemData.itemName != itemName)
+            if (inventoryItemData.ItemName != itemName)
             {
                 continue;
             }
@@ -75,18 +85,22 @@ public class InventoryManager : MonoBehaviour
 
         while (remainingAddCount > 0)
         {
-            int addedCount = AddNewItem(itemType, itemName, remainingAddCount);
+            int addedCount = AddNewItem(itemType, itemName, useItemType, value, remainingAddCount);
             remainingAddCount -= addedCount;
         }
     }
 
-    private int AddNewItem(ItemType itemType, string itemName, int addCount)
+    private int AddNewItem(ItemType itemType, string itemName, UseItemType useItemType, float value, int addCount)
     {
         long itemUId = GenerateUniqueId();
         
         ItemData newItem = new ItemData();
+
         newItem.ItemUId = itemUId;
-        newItem.itemName = itemName;
+        newItem.ItemName = itemName;
+        newItem.ItemType = itemType;
+        newItem.UseItemType = useItemType;
+        newItem.Value = value;
 
         if (!maxCounts.ContainsKey(itemType))
         {
@@ -126,6 +140,74 @@ public class InventoryManager : MonoBehaviour
         }
 
         _onInventoryChanged.Invoke(itemData);
+    }
+
+
+    public bool RequestUseItem(long useItemUId)
+    {
+        bool useItemSuccess;
+
+        int removeIndex = 0;
+
+        foreach (ItemData itemData in _inventory)
+        {
+            if (itemData.ItemUId != useItemUId)
+            {
+                removeIndex++;
+                continue;
+            }
+
+            UseItem(itemData.UseItemType, itemData.Value);
+            break;
+        }
+
+        useItemSuccess = RequestRemoveItem(removeIndex);
+        
+        return useItemSuccess;
+    }
+
+    private void UseItem(UseItemType useItemType, float value)
+    {
+        if (useItemType == UseItemType.None || value == 0)
+        {
+            return;
+        }
+
+        GameObject player = ObjectManager.Instance.GetObjectByInstanceId(1);
+        
+        if (player == null) 
+        {
+            Debug.LogError("플레이어 없음");
+        }
+
+        if(!player.TryGetComponent(out PlayerController playerController))
+        {
+            Debug.LogError("플레이어 컨트롤러 없음");
+        }
+
+        playerController.UseItem(useItemType, value);
+    }
+
+    private bool RequestRemoveItem(int removeIndex)
+    {
+        ItemData itemData = _inventory[removeIndex];
+
+        if (itemData == null)
+        {
+            Debug.LogError("올바르지 않은 아이템 정보");
+            return false;
+        }
+
+        itemData.ItemCount--;
+
+        if (itemData.ItemCount <= 0)
+        {
+            _inventory.RemoveAt(removeIndex);
+        }
+
+        InvokeChangeAction(itemData);
+
+        return true;
     }
 
     private static long _lastId = 0;
