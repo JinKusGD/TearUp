@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventorySlot : MonoBehaviour
 {
+    [SerializeField] private Image _selectImage;
     [SerializeField] private InventorySlotButton _inventorySlotButton;
 
     private Action<long> _onSlotClickAction;
@@ -14,7 +15,7 @@ public class InventorySlot : MonoBehaviour
         _inventorySlotButton.BindOnClickEvent(OnSlotClick);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         UnBindSlotClickAction();
     }
@@ -70,5 +71,10 @@ public class InventorySlot : MonoBehaviour
         }
 
         _onSlotClickAction.Invoke(_slotItemUId);
+    }
+
+    public void ChangeSelectImage(Color color)
+    {
+        _selectImage.color = color;
     }
 }
