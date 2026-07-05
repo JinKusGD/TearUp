@@ -214,9 +214,27 @@ public class PlayerController : EntityBase, IAttackable, ITakeDamageable
         HpHudChange();
     }
 
+    public void UseItem(UseItemType useItemType, float value)
+    {
+        switch (useItemType)
+        {
+            case UseItemType.HpUp:
+                Heal(value);
+                break;
+            case UseItemType.SpeedUp:
+                _walkSpeed += value;
+                _runSpeed += value;
+                break;
+            default:
+                Debug.LogError("플레이어 아이템 타입 예외");
+                break;
+        }
+
+    }
+
     private void InitStat()
     {
-        Hp = MaxHp;
+        Hp = 1;
         _hpInfo.MaxHp = MaxHp;
         _hpInfo.Hp = Hp;
     }
